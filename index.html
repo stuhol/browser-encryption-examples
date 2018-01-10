@@ -1,0 +1,68 @@
+<html>
+<head>
+<script src="js/jquery-3.2.1.min.js"></script>
+<script src="js/buffer.js"></script>
+<!--<script src="pbkdf2.js"></script>-->
+<script src="js/browsercrypto.js"></script>
+</head>
+<body>
+    <form>
+        <label>Salt: </label><input id="user_salt" type="text" size=70/><button type="button" onclick="genSalt()">Gen salt</button><br/>
+        <label>Passphrase: </label><input id="user_passphrase" type="text"/><br/>
+        <label>Key: </label><input id="key" type="text" size=70/><button type="button" onclick="genKey()">Gen key</button><br/>
+        <label>IV: </label><input id="iv" type="text" size=36/><button type="button" onclick="genIV()">Gen IV</button><br/>
+        <label>Plaintext: </label><br/><textarea id="plaintext" rows="6" cols="50"></textarea><br/>
+        <lable>Ciphertext: </lable><br/><textarea id="ciphertext" rows="6" cols="50"></textarea><br/>
+        <button type="button" id="encrypt_btn" >Encrypt</button><button type="button" id="decrypt_btn">Decrypt</button><button type="button">Clear</button>
+    </form>
+
+    <script>
+        
+        $(document).ready(function(){
+            genSalt();
+            genIV();
+            
+            $("#encrypt_btn").click(function(){
+
+                //Get text area
+                plaintext = $("#plaintext").val()
+                //plaintextBuffer = buffer.Buffer.from(plaintext, 'ascii');
+                plaintextBuffer = new TextEncoder().encode(plaintext);
+                console.log(plaintextBuffer);
+
+                // Get key
+                key = buffer.Buffer.from($("#key").val(), 'hex');
+                console.log(key);
+
+                // Get IV
+                iv = buffer.Buffer.from($("#iv").val(), 'hex');
+
+                symmetricEncrypt(plaintextBuffer, key, iv, function(ciphertext){
+                    $("#ciphertext").val(buffer.Buffer.from(ciphertext).toString('hex'));
+                })
+            })
+
+            $("#decrypt_btn").click(function(){
+
+                //Get text area
+                ciphertext = $("#ciphertext").val()
+                ciphertextBuffer = buffer.Buffer.from(ciphertext, 'hex');
+
+                // Get key
+                key = buffer.Buffer.from($("#key").val(), 'hex');
+
+                // Get IV
+                iv = buffer.Buffer.from($("#iv").val(), 'hex');
+
+                symmetricDecrypt(ciphertextBuffer, key, iv, function(plaintext){
+                        $("#plaintext").val(buffer.Buffer.from(plaintext).toString('ascii'));
+                    })
+                })
+
+        })
+
+    </script>
+
+
+</body>
+</html>
