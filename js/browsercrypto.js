@@ -16,19 +16,17 @@ function genIV() {
     $("#iv").val(genRandomHexString(16));
 }
 
-function genKey() {
-
-    // Get salt from text input
-    salt = $("#user_salt").val();
-    saltBuffer = buffer.Buffer.from(salt);
-
-    // Get passphrase from text input
-    passphrase = $("#user_passphrase").val();
-    passphraseBuffer = buffer.Buffer.from(passphrase);
+/*
+Generate symmetric key using PBKDF2
+salt Uint8Array - Salt to use for password derivation
+passphrase Uint8Array - Passphrase to use for password derivation
+callback - Callback with key parameter as Uint8Array
+*/
+function genKey(salt, passphrase, callback) {
 
     window.crypto.subtle.importKey(
         'raw', 
-        passphraseBuffer, 
+        passphrase, 
         {name: 'PBKDF2'}, 
         false, 
         ['deriveBits', 'deriveKey']
@@ -36,7 +34,7 @@ function genKey() {
       
         return window.crypto.subtle.deriveKey(
           { "name": 'PBKDF2',
-            "salt": saltBuffer,
+            "salt": salt,
             // don't get too ambitious, or at least remember
             // that low-power phones will access your app
             "iterations": 5000,
@@ -62,14 +60,8 @@ function genKey() {
         return crypto.subtle.exportKey("raw", webKey);
       
       }).then(function (key) {
-      
-          var proofOfSecret = key;
-          // this proof-of-secret / secure-remote password
-          // can now be sent in place of the user's password
-      
-          //var array = buffer.Buffer.from(buffer);
-      
-          $("#key").val((buffer.Buffer.from(key).toString('hex')));
+
+        callback(key);
 
       });
 

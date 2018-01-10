@@ -9,7 +9,7 @@
     <form>
         <label>Salt: </label><input id="user_salt" type="text" size=70/><button type="button" onclick="genSalt()">Gen salt</button><br/>
         <label>Passphrase: </label><input id="user_passphrase" type="text"/><br/>
-        <label>Key: </label><input id="key" type="text" size=70/><button type="button" onclick="genKey()">Gen key</button><br/>
+        <label>Key: </label><input id="key" type="text" size=70/><button type="button" id="gen_key">Gen key</button><br/>
         <label>IV: </label><input id="iv" type="text" size=36/><button type="button" onclick="genIV()">Gen IV</button><br/>
         <label>Plaintext: </label><br/><textarea id="plaintext" rows="6" cols="50"></textarea><br/>
         <lable>Ciphertext: </lable><br/><textarea id="ciphertext" rows="6" cols="50"></textarea><br/>
@@ -21,6 +21,21 @@
         $(document).ready(function(){
             genSalt();
             genIV();
+
+            $("#gen_key").click(function() {
+                // Get salt from text input
+                salt = $("#user_salt").val();
+                saltBuffer = buffer.Buffer.from(salt);
+
+                // Get passphrase from text input
+                passphrase = $("#user_passphrase").val();
+                passphraseBuffer = buffer.Buffer.from(passphrase);
+
+                genKey(saltBuffer, passphraseBuffer, function(key){
+                    $("#key").val((buffer.Buffer.from(key).toString('hex')));
+                });
+
+            })
             
             $("#encrypt_btn").click(function(){
 
