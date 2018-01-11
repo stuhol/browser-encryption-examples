@@ -49,9 +49,7 @@ function genPBKDFKey(salt, passphrase, callback) {
         return window.crypto.subtle.deriveKey(
           { "name": 'PBKDF2',
             "salt": salt,
-            // don't get too ambitious, or at least remember
-            // that low-power phones will access your app
-            "iterations": 5000,
+            "iterations": 100000,
             "hash": 'SHA-256'
           },
           key,

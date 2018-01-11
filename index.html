@@ -6,12 +6,12 @@
 <script src="js/browsercrypto.js"></script>
 </head>
 <body>
-    <h1>Symmetric Encryption</h1>
+    <h1>Passphrase derived symmetric Encryption</h1>
     <form>
-        <label>Salt: </label><input id="sym_user_salt" type="text" size=70/><button type="button" onclick="$('#sym_user_salt').val(genSalt())">Gen salt</button><br/>
-        <label>Passphrase: </label><input id="sym_user_passphrase" type="text"/><br/>
-        <label>Key: </label><input id="sym_key" type="text" size=70/><button type="button" id="sym_gen_key_btn">Gen key</button><br/>
-        <label>IV: </label><input id="sym_iv" type="text" size=36/><button type="button" onclick="$('#sym_iv').val(genIV())">Gen IV</button><br/>
+        <label>PBKDF2 Salt: </label><input id="sym_user_salt" type="text" size=70/><button type="button" onclick="$('#sym_user_salt').val(genSalt())">Gen salt</button><br/>
+        <label>PBKDF2 Passphrase: </label><input id="sym_user_passphrase" type="text"/><br/>
+        <label>AES Key: </label><input id="sym_key" type="text" size=70/><button type="button" id="sym_gen_key_btn">Gen key</button><br/>
+        <label>AES IV: </label><input id="sym_iv" type="text" size=36/><button type="button" onclick="$('#sym_iv').val(genIV())">Gen IV</button><br/>
         <label>Plaintext: </label><br/><textarea id="sym_plaintext" rows="6" cols="50"></textarea><br/>
         <lable>Ciphertext: </lable><br/><textarea id="sym_ciphertext" rows="6" cols="50"></textarea><br/>
         <button type="button" id="sym_encrypt_btn" >Encrypt</button><button type="button" id="sym_decrypt_btn">Decrypt</button>
@@ -19,11 +19,12 @@
 
     <h1>Asymmetric Encryption</h1>
     <form>
-            <label>Ephemeral AES key: </label><input id="asym_aes_key" type="text" size=70/><button type="button" id="asym_gen_aes_key_btn">Gen AES key</button><br/>            <label>AES IV: </label><input id="asym_aes_iv" type="text" size=36/><button type="button" onclick="genIV()">Gen IV</button><br/>
+            <label>Ephemeral AES key: </label><input id="asym_aes_key" type="text" size=70/><button type="button" id="asym_gen_aes_key_btn">Gen AES key</button><br/>            
+            <label>AES IV: </label><input id="asym_aes_iv" type="text" size=36/><button type="button" onclick="$('#asym_aes_iv').val(genIV())">Gen IV</button><br/>
             <label>Plaintext: </label><br/><textarea id="asym_plaintext" rows="6" cols="50"></textarea><br/>
             <lable>Ciphertext: </lable><br/><textarea id="asym_ciphertext" rows="6" cols="50"></textarea><br/>
             <button type="button" id="asym_aes_encrypt_btn" >Encrypt</button><br/><br/>
-            <label>Public key (DER hexstring): </label><br/><textarea id="asym_pub_key" rows="8" cols="88"></textarea><br/>
+            <label>RSA public key (DER hexstring): </label><br/><textarea id="asym_pub_key" rows="8" cols="88"></textarea><br/>
             <label>RSA encrypted ephemeral AES key (hexstring): </label><br/><textarea id="asym_aes_enc_key" rows="8" cols="77"></textarea><br/>
             <button type="button" id="asym_rsa_encrypt_aes_key_btn">Encrypt AES key</button><br/>
         </form>
