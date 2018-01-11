@@ -6,73 +6,135 @@
 <script src="js/browsercrypto.js"></script>
 </head>
 <body>
+    <h1>Symmetric Encryption</h1>
     <form>
-        <label>Salt: </label><input id="user_salt" type="text" size=70/><button type="button" onclick="genSalt()">Gen salt</button><br/>
-        <label>Passphrase: </label><input id="user_passphrase" type="text"/><br/>
-        <label>Key: </label><input id="key" type="text" size=70/><button type="button" id="gen_key">Gen key</button><br/>
-        <label>IV: </label><input id="iv" type="text" size=36/><button type="button" onclick="genIV()">Gen IV</button><br/>
-        <label>Plaintext: </label><br/><textarea id="plaintext" rows="6" cols="50"></textarea><br/>
-        <lable>Ciphertext: </lable><br/><textarea id="ciphertext" rows="6" cols="50"></textarea><br/>
-        <button type="button" id="encrypt_btn" >Encrypt</button><button type="button" id="decrypt_btn">Decrypt</button><button type="button">Clear</button>
+        <label>Salt: </label><input id="sym_user_salt" type="text" size=70/><button type="button" onclick="$('#sym_user_salt').val(genSalt())">Gen salt</button><br/>
+        <label>Passphrase: </label><input id="sym_user_passphrase" type="text"/><br/>
+        <label>Key: </label><input id="sym_key" type="text" size=70/><button type="button" id="sym_gen_key_btn">Gen key</button><br/>
+        <label>IV: </label><input id="sym_iv" type="text" size=36/><button type="button" onclick="$('#sym_iv').val(genIV())">Gen IV</button><br/>
+        <label>Plaintext: </label><br/><textarea id="sym_plaintext" rows="6" cols="50"></textarea><br/>
+        <lable>Ciphertext: </lable><br/><textarea id="sym_ciphertext" rows="6" cols="50"></textarea><br/>
+        <button type="button" id="sym_encrypt_btn" >Encrypt</button><button type="button" id="sym_decrypt_btn">Decrypt</button>
     </form>
 
+    <h1>Asymmetric Encryption</h1>
+    <form>
+            <label>Ephemeral AES key: </label><input id="asym_aes_key" type="text" size=70/><button type="button" id="asym_gen_aes_key_btn">Gen AES key</button><br/>            <label>AES IV: </label><input id="asym_aes_iv" type="text" size=36/><button type="button" onclick="genIV()">Gen IV</button><br/>
+            <label>Plaintext: </label><br/><textarea id="asym_plaintext" rows="6" cols="50"></textarea><br/>
+            <lable>Ciphertext: </lable><br/><textarea id="asym_ciphertext" rows="6" cols="50"></textarea><br/>
+            <button type="button" id="asym_aes_encrypt_btn" >Encrypt</button><br/><br/>
+            <label>Public key (DER hexstring): </label><br/><textarea id="asym_pub_key" rows="8" cols="88"></textarea><br/>
+            <label>RSA encrypted ephemeral AES key (hexstring): </label><br/><textarea id="asym_aes_enc_key" rows="8" cols="77"></textarea><br/>
+            <button type="button" id="asym_rsa_encrypt_aes_key_btn">Encrypt AES key</button><br/>
+        </form>
     <script>
-        
+       
         $(document).ready(function(){
-            genSalt();
-            genIV();
+            $('#sym_user_salt').val(genSalt());
+            $('#sym_iv').val(genIV());
 
-            $("#gen_key").click(function() {
+            $("#sym_gen_key_btn").click(function() {
                 // Get salt from text input
-                salt = $("#user_salt").val();
-                saltBuffer = buffer.Buffer.from(salt);
+                var salt = $("#sym_user_salt").val();
+                var saltBuffer = buffer.Buffer.from(salt);
 
                 // Get passphrase from text input
-                passphrase = $("#user_passphrase").val();
-                passphraseBuffer = buffer.Buffer.from(passphrase);
+                var passphrase = $("#sym_user_passphrase").val();
+                var passphraseBuffer = buffer.Buffer.from(passphrase);
 
-                genKey(saltBuffer, passphraseBuffer, function(key){
-                    $("#key").val((buffer.Buffer.from(key).toString('hex')));
+                genPBKDFKey(saltBuffer, passphraseBuffer, function(key){
+                    $("#sym_key").val((buffer.Buffer.from(key).toString('hex')));
                 });
 
             })
             
-            $("#encrypt_btn").click(function(){
+            $("#sym_encrypt_btn").click(function(){
 
                 //Get text area
-                plaintext = $("#plaintext").val()
+                var plaintext = $("#sym_plaintext").val()
                 //plaintextBuffer = buffer.Buffer.from(plaintext, 'ascii');
-                plaintextBuffer = new TextEncoder().encode(plaintext);
+                var plaintextBuffer = new TextEncoder().encode(plaintext);
                 console.log(plaintextBuffer);
 
                 // Get key
-                key = buffer.Buffer.from($("#key").val(), 'hex');
+                var key = buffer.Buffer.from($("#sym_key").val(), 'hex');
                 console.log(key);
 
                 // Get IV
-                iv = buffer.Buffer.from($("#iv").val(), 'hex');
+                var iv = buffer.Buffer.from($("#sym_iv").val(), 'hex');
 
                 symmetricEncrypt(plaintextBuffer, key, iv, function(ciphertext){
-                    $("#ciphertext").val(buffer.Buffer.from(ciphertext).toString('hex'));
+                    $("#sym_ciphertext").val(buffer.Buffer.from(ciphertext).toString('hex'));
                 })
             })
 
-            $("#decrypt_btn").click(function(){
+            $("#sym_decrypt_btn").click(function(){
 
                 //Get text area
-                ciphertext = $("#ciphertext").val()
-                ciphertextBuffer = buffer.Buffer.from(ciphertext, 'hex');
+                var ciphertext = $("#sym_ciphertext").val()
+                var ciphertextBuffer = buffer.Buffer.from(ciphertext, 'hex');
 
                 // Get key
-                key = buffer.Buffer.from($("#key").val(), 'hex');
+                var key = buffer.Buffer.from($("#sym_key").val(), 'hex');
 
                 // Get IV
-                iv = buffer.Buffer.from($("#iv").val(), 'hex');
+                var iv = buffer.Buffer.from($("#sym_iv").val(), 'hex');
 
                 symmetricDecrypt(ciphertextBuffer, key, iv, function(plaintext){
-                        $("#plaintext").val(buffer.Buffer.from(plaintext).toString('ascii'));
+                        $("#sym_plaintext").val(buffer.Buffer.from(plaintext).toString('ascii'));
                     })
                 })
+
+            $('#asym_aes_iv').val(genIV());
+            $('#asym_pub_key').val(pubkey);
+
+            $("#asym_gen_aes_key_btn").click(function() {
+
+                genAESKey(function(key) { 
+
+                    window.crypto.subtle.exportKey('raw', key).then(
+                        function(exportedKey) {
+                            $("#asym_aes_key").val(buffer.Buffer.from(exportedKey).toString('hex'));
+                        });
+                });
+            });
+
+            $("#asym_aes_encrypt_btn").click(function () {
+
+                //Get plaintext 
+                var plaintext = $("#asym_plaintext").val()
+                var plaintextBuffer = new TextEncoder().encode(plaintext);
+
+                // Get key
+                var key = buffer.Buffer.from($("#asym_aes_key").val(), 'hex');
+
+                // Get IV
+                var iv = buffer.Buffer.from($("#asym_aes_iv").val(), 'hex');
+
+                symmetricEncrypt(plaintextBuffer, key, iv, function(ciphertext){
+                    $("#asym_ciphertext").val(buffer.Buffer.from(ciphertext).toString('hex'));
+                })
+
+            })
+
+            $("#asym_rsa_encrypt_aes_key_btn").click(function (){
+
+                //Get AES key
+                var aesKey = $("#asym_aes_key").val();
+                var aesKeyBuffer = new TextEncoder().encode(aesKey);
+                
+                //Get public key
+                var pubkey = $("#asym_pub_key").val()
+                var pubkeyBuffer = buffer.Buffer.from(pubkey, 'hex');
+
+                asymmetricEncrypt(
+                    aesKeyBuffer,
+                    pubkeyBuffer,
+                    function(encryptedAESKey) {
+                        $("#asym_aes_enc_key").val(buffer.Buffer.from(encryptedAESKey).toString('hex'))
+                    })
+
+            })
 
         })
 

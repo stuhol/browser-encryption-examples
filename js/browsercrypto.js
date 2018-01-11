@@ -12,38 +12,6 @@ d1d9fde9c6f7210025ea8c91e271520220fe973825c15a6f415927095624\
 
 pubkeyBuffer = buffer.Buffer.from(pubkey, 'hex');
 
-// For testing purposes
-privatekey = '-----BEGIN PRIVATE KEY-----\
-MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC+cyQy6GZSLXrz\
-4UxJM+5VtrFJJfqxk0Kdva0zgeHxJT3e/viOI5Z7j8m5kC1T2/qohX9S4xWInB4M\
-MesJ0YgclbqTjpLAuKCJeS8vFhk6EgrKZ+C0M6utdN23JUAJtqK+35wDXRPcFvcP\
-rofqBuUUEhkIW5d+mTCAFgMKOXnP6CO289JZmYPuM/IqwLF3YW8K7oQVX6pGRwpH\
-KprIjcIBUTK5UUtnJNKbIzKlod+b2L3R2f3pxvchACXqjJHicVICIP6XOCXBWm9B\
-WScJViSXr7aw6chWkOlDO3olzOqXtgHWfnxkiifnFV/vsLxxIGFuOjdv8yYWHH2s\
-SlicBLtDAgMBAAECggEAO1Bq9rvwmil2AJyrgKT+1o0mm+yLLmD5v10Co2cRMmRx\
-55CrYsFsraDzp6pio5qAb5ncNLlqzHgq14t4cz9hz91GFYyy4fjebtJiQpz0UGSs\
-HavKjPUGw+gA4XhlgGD0QNQtp9KGS+aPHcAyrk1lbSHR0AuOnCwjsdCpM7cA3CIa\
-3sOi7DS2s/et5MBwPGfKfno+UcUIBV0/UcAs5eEgcLAoV3RXNyScbJaHTUv0HVPi\
-Fb3OZ14QqCc1IxtNNEjUj74rc6R9qFfyaBQTfzWwrEmb3JmrEmgQFYBKbtIW+BB4\
-/1aVUrfCUeCmo8n0ZUZNymgdjyNA0aCh4YrRQ5ITUQKBgQD508i0u4xORsyfsNmZ\
-QcQFg0IuZM9hEyPDaY7pMm+yr883sLe8MoVDuUUrceUAXfbGNy6kvqqgy1NGYX/J\
-0hZ8y3QrEC2Pn8wiDtpwHDibgZ8x5dUiTPtxgkdV/Vk77OpYG+CxQyJjiwPRXEVV\
-wC/TOK3i/nOmA3bQZ33NC5o+ewKBgQDDJ8ffbBzmreiCWDXFtVuBAXY3qdLzXj3+\
-7F0816aAxyi9+F/IB0kCa0fmEVGRYDkxhDhVgP6C7qRw7wz0BGOaEdROjo4M9V/c\
-V3ndtAu25ArfcjMXvp36UvdHEwK3ge1moVlXkyzUmz6KHirEwVYPJa7yaO8dR2tZ\
-VXJEuHi/2QKBgQDUbnh47g01NlCi7W9qORjkkyNAbepFIlBDxsuFkaSXLZWnRjZF\
-6jOVTcH6WkOel0fSbnPUFGjkh2ANNbTCuUjz3tCuGXiUaw3aXAT0VZrw6Dyk4kjk\
-fM9GSsA750zsft0aBMKAGJTyTe/2I161ttEz6zs5DKLsJH/wYEABjf8fZwKBgQCc\
-HFFlpy1DVnB8/CUfn6CwBMRVaLMH3SaIqvk2t2dI8ofj1zB/aVx84+ai4s22FhwK\
-QTNzKnntsQq4EHHzLSOj1olXwe9d7FcfgpZIxELurWMJNWgroV7sJLwMDegJdZS7\
-mWxHgsLE297eS514wROfkExvO4OzjzMPRivfTxXAmQKBgQDYh03+wZFmoyoeR2RE\
-XZ+aPTNtIL+Wycj+675aixL+xQhb98BTnlwysmV+Nb7l9RXN2TgmzQqiWz3OM4ps\
-p9O/0nUX97c2ujwf8GJxFrKg0RSyPGkOIOgcJHhaNWdert6K7ZgKScns9wMJ1xH+\
-z8s4axAxANhjeg2CCV00LPEZyg==\
------END PRIVATE KEY-----'
-
-privkeyBuffer = buffer.Buffer.from(privatekey, 'ascii');
-
 function genRandomHexString(size) {
     var salt = new Uint8Array(size);
 
@@ -55,11 +23,11 @@ function genRandomHexString(size) {
 }
 
 function genSalt() {
-    $("#user_salt").val(genRandomHexString(32));
+    return genRandomHexString(32);
 }
 
 function genIV() {
-    $("#iv").val(genRandomHexString(16));
+    return genRandomHexString(16);
 }
 
 /*
@@ -68,7 +36,7 @@ salt Uint8Array - Salt to use for password derivation
 passphrase Uint8Array - Passphrase to use for password derivation
 callback - Callback with key parameter as Uint8Array
 */
-function genKey(salt, passphrase, callback) {
+function genPBKDFKey(salt, passphrase, callback) {
 
     window.crypto.subtle.importKey(
         'raw', 
@@ -134,7 +102,7 @@ function symmetricEncrypt(plaintext, key, iv, callback) {
         return window.crypto.subtle.encrypt(
             algo,
             cryptokey,
-            plaintextBuffer
+            plaintext
         )
     }).then(function (ciphertext) {
         callback(ciphertext);
@@ -149,7 +117,7 @@ key Uint8Array(32) - Key to use to decrypt ciphertext
 iv Uint8Array(16) - IV to use for AES
 callback - Callback with plaintext parameter as Uint8Array
 */
-function symmetricDecrypt(plaintext, key, iv, callback) {
+function symmetricDecrypt(ciphertext, key, iv, callback) {
 
     algo = {name: 'AES-CBC', iv: iv};
 
@@ -163,7 +131,7 @@ function symmetricDecrypt(plaintext, key, iv, callback) {
         return window.crypto.subtle.decrypt(
             algo,
             cryptokey,
-            ciphertextBuffer
+            ciphertext
         )
     }).then(function (plaintext) {
         callback(plaintext);
@@ -171,20 +139,46 @@ function symmetricDecrypt(plaintext, key, iv, callback) {
 
 }
 
-
-
 //For Testing purposes
-plaintextBuffer = buffer.Buffer.from("test", 'ascii');
-ivBuffer = buffer.Buffer.from("6cc22530b5ccef1e74d065fc7d754532", 'hex');
-                               
+function genRSAKey() {
+    window.crypto.subtle.generateKey(
+        {
+            name: "RSA-OAEP",
+            modulusLength: 2048,
+            publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+            hash: {name: "SHA-256"}
+        },
+        true,
+        ["encrypt", "decrypt"]
+    ).then(function(keyPair) {
+        keypair = keyPair;
+    });
+}
+
+function genAESKey(callback) {
+
+    var encryptAlgo = {
+        name: "AES-CBC",
+        length: 256
+    }
+
+    window.crypto.subtle.generateKey(
+        encryptAlgo,
+        true,
+        ['encrypt']
+    ).then(function(key) {
+        callback(key);
+    });
+}
+
 /*
 Encrypt with public key
-
+plaintext 
 */
-function asymmetricEncrypt(plaintext, publickey, iv, callback) {
+function asymmetricEncrypt(plaintext, publickey, callback) {
 
-    keyAlgo = {name: "RSA-OAEP", hash: "SHA-256"};
-    encryptAlgo = {name: "RSA-OAEP"};
+    var keyAlgo = {name: "RSA-OAEP", hash: "SHA-256"};
+    var encryptAlgo = {name: "RSA-OAEP"};
 
     window.crypto.subtle.importKey(
         'spki',
@@ -193,7 +187,6 @@ function asymmetricEncrypt(plaintext, publickey, iv, callback) {
         true,
         ['encrypt']
     ).then(function (key) {
-        console.log(key);
         return window.crypto.subtle.encrypt(
             encryptAlgo,
             key,
@@ -203,30 +196,4 @@ function asymmetricEncrypt(plaintext, publickey, iv, callback) {
         callback(ciphertext);
     });
 
-}
-
-/*
-Decrypt with private key
-
-*/
-function asymmetricDecrypt(ciphertext, privatekey, iv, callback) {
-
-    keyAlgo = {name: "RSA-OAEP", hash: "SHA-256"};
-    decryptAlgo = {name: "RSA-OAEP"};
-
-    window.crypto.subtle.importKey(
-        'pkcs8',
-        privatekey,
-        keyAlgo,
-        true,
-        ['decrypt']
-    ).then(function (key) {
-        return window.crypto.subtle.decrypt(
-            decryptAlgo,
-            key,
-            cipertext
-        )
-    }).then(function (plaintext) {
-        console.log(plaintext);
-    });
 }
